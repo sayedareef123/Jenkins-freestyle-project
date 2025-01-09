@@ -1,0 +1,71 @@
+name: Terraform Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform (apply or destroy)'
+        required: true
+        default: 'apply'
+        options:
+          - 'apply'
+          - 'destroy'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Setup Terraform CLI
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.9.8  # Specify the required Terraform version
+
+    # Configure AWS credentials
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    # Terraform Init
+    - name: Terraform Init
+      run: terraform init
+
+    # Terraform Plan
+    - name: Terraform Plan
+      run: terraform plan
+
+    # Choose between Apply or Destroy
+    - name: Run Terraform Action
+      run: |
+        # Check if the action input is provided, else use 'apply' as default
+        ACTION="${{ github.event.inputs.action }}"
+        if [ -z "$ACTION" ]; then
+          ACTION="apply"
+        fi
+
+        # Debugging: Show the action being run
+        echo "Action selected: $ACTION"
+
+        # Check the action and execute accordingly
+        if [[ "$ACTION" == "apply" ]]; then
+          echo "Running Terraform Apply..."
+          terraform plan -out=tfplan
+          terraform apply -auto-approve tfplan
+        elif [[ "$ACTION" == "destroy" ]]; then
+          echo "Running Terraform Destroy..."
+          terraform destroy -auto-approve
+        else
+          echo "Invalid action specified: $ACTION"
+          exit 1
+        fi
