@@ -17,10 +17,10 @@ variable "aws_region" {
     type =  string
 }
 
-variable "aws_profile" {
-    description = "This is profile for aws"
-    type =  string
-}
+# variable "aws_profile" {
+#     description = "This is profile for aws"
+#     type =  string
+#}
 
 variable "instance_ami" {
     description = "This is ami host"
