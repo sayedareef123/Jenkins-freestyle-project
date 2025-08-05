@@ -6,7 +6,7 @@ resource "aws_instance" "wordpress_Areef" {
     vpc_security_group_ids = [aws_security_group.wordpress_sg.id]
 
 
-    user_data                    = file("${path.module}/app.sh")
+  
     tags = {
       Name = var.instance_name
       instance_name = var.instance_name   
