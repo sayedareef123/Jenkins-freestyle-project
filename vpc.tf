@@ -14,7 +14,7 @@ resource "aws_subnet" "wordpress_subnet" {
   map_public_ip_on_launch = true   
 
   tags = {
-    Name = "wordpress-subnets-wrd"
+    Name = "wordpress-subnet-name"
   }
 }
 
